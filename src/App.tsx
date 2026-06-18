@@ -127,6 +127,34 @@ export default function App() {
   const [selectedBrand, setSelectedBrand] = useState('ALL');
   const [visibleCount, setVisibleCount] = useState(32);
 
+  // Handle smooth navigation scrolling for both desktop and mobile views
+  const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    setActiveSection(sectionId);
+    setMobileMenuOpen(false);
+    
+    // Smooth scroll with a slight delay so that the mobile menu drawer height change 
+    // doesn't distort the calculation of offset positions
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        // Calculate sticky header height offset dynamically
+        const navHeader = document.getElementById('main-navigation');
+        const offset = navHeader ? navHeader.getBoundingClientRect().height : 90;
+        
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = element.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset + 2; // subtle padding adjustment
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 120);
+  };
+
 
 
   // B2B Enquiry Basket state
@@ -358,7 +386,7 @@ export default function App() {
       {/* NAVIGATION BAR */}
       <nav id="main-navigation" className="sticky top-0 z-40 bg-white border-b border-black/5 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1 md:py-1.5 flex items-center justify-between">
-          <a href="#home" onClick={() => setActiveSection('home')} className="flex items-center transition-opacity hover:opacity-90 py-0.5">
+          <a href="#home" onClick={(e) => handleNavLinkClick(e, 'home')} className="flex items-center transition-opacity hover:opacity-90 py-0.5">
             <img 
               src="https://i.ibb.co/fLZN5Jg/Whats-App-Image-2026-06-16-at-11-18-16.jpg" 
               alt="Mahajan Provision Stores" 
@@ -379,7 +407,7 @@ export default function App() {
               <a
                 key={link.id}
                 href={`#${link.id}`}
-                onClick={() => setActiveSection(link.id)}
+                onClick={(e) => handleNavLinkClick(e, link.id)}
                 className={`text-sm font-semibold px-4 py-2 rounded-lg transition-colors ${
                   activeSection === link.id
                     ? 'bg-[#FAECEB] text-[#A11E22]'
@@ -391,7 +419,7 @@ export default function App() {
             ))}
             <a
               href="#contact"
-              onClick={() => setActiveSection('contact')}
+              onClick={(e) => handleNavLinkClick(e, 'contact')}
               className="bg-[#A11E22] text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all hover:bg-[#781115] hover:shadow-md flex items-center gap-2 cursor-pointer ml-2"
             >
               <span>Contact & Quotes</span>
@@ -404,6 +432,7 @@ export default function App() {
             {totalBasketCount > 0 && (
               <a 
                 href="#products" 
+                onClick={(e) => handleNavLinkClick(e, 'products')}
                 className="relative bg-[#FAECEB] p-2 rounded-full text-[#A11E22]"
                 aria-label="Enquiry Basket"
               >
@@ -446,10 +475,7 @@ export default function App() {
                   <a
                     key={link.id}
                     href={`#${link.id}`}
-                    onClick={() => {
-                      setActiveSection(link.id);
-                      setMobileMenuOpen(false);
-                    }}
+                    onClick={(e) => handleNavLinkClick(e, link.id)}
                     className={`text-sm font-medium p-3 rounded-lg flex items-center justify-between transition-colors ${
                       activeSection === link.id
                         ? 'bg-[#FAECEB] text-[#A11E22] font-semibold'
@@ -518,7 +544,7 @@ export default function App() {
             <div className="flex flex-wrap gap-4">
               <a
                 href="#products"
-                onClick={() => setActiveSection('products')}
+                onClick={(e) => handleNavLinkClick(e, 'products')}
                 className="bg-[#A11E22] text-white hover:bg-[#781115] text-base font-bold px-8 py-4 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-lg flex items-center gap-3 cursor-pointer"
               >
                 <ShoppingBag className="w-5 h-5" />
@@ -554,19 +580,7 @@ export default function App() {
           </motion.div>
         </div>
 
-        {/* Carousel Slide Indicators */}
-        <div id="slide-dots-panel" className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
-          {HERO_IMAGES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveSlide(i)}
-              className={`h-2 transition-all duration-300 rounded-full ${
-                activeSlide === i ? 'bg-[#EAA813] w-7' : 'bg-white/40 w-2'
-              }`}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
-        </div>
+
       </section>
 
       {/* CORE BENEFITS / WELCOME */}
@@ -986,7 +1000,7 @@ export default function App() {
                   {totalBasketCount > 0 ? (
                     <a
                       href="#contact"
-                      onClick={() => setActiveSection('contact')}
+                      onClick={(e) => handleNavLinkClick(e, 'contact')}
                       className="bg-[#EAA813] text-[#490A0C] hover:bg-[#F5C752] transition-all font-black text-xs uppercase tracking-wider py-3 rounded-xl text-center flex items-center justify-center gap-2 mt-1 shadow-sm"
                     >
                       <span>Proceed to Quote Form</span>
@@ -1081,7 +1095,7 @@ export default function App() {
               </p>
               <a
                 href="#locate"
-                onClick={() => setActiveSection('locate')}
+                onClick={(e) => handleNavLinkClick(e, 'locate')}
                 className="bg-[#A11E22] text-white font-bold text-xs px-6 py-3 rounded-xl hover:bg-[#781115] transition-all flex items-center gap-1"
               >
                 <span>Find Us on Map Below</span>
@@ -1388,9 +1402,9 @@ export default function App() {
             <div className="md:col-span-3 flex flex-col gap-4 text-xs sm:text-sm">
               <h4 className="font-bold text-white uppercase tracking-wider">Fast Links</h4>
               <div className="flex flex-col gap-2">
-                <a href="#welcome" className="hover:text-[#EAA813] transition-colors">Our 50-Year Legacy</a>
-                <a href="#products" className="hover:text-[#EAA813] transition-colors">Ingredient Catalogue</a>
-                <a href="#locate" className="hover:text-[#EAA813] transition-colors">Locate Store Map</a>
+                <a href="#welcome" onClick={(e) => handleNavLinkClick(e, 'welcome')} className="hover:text-[#EAA813] transition-colors">Our 50-Year Legacy</a>
+                <a href="#products" onClick={(e) => handleNavLinkClick(e, 'products')} className="hover:text-[#EAA813] transition-colors">Ingredient Catalogue</a>
+                <a href="#locate" onClick={(e) => handleNavLinkClick(e, 'locate')} className="hover:text-[#EAA813] transition-colors">Locate Store Map</a>
                 <a href="https://wa.me/919686684854" target="_blank" className="text-[#EAA813] hover:underline flex items-center gap-1 font-bold">
                   <span>Chat With Us Support</span>
                   <ChevronRight className="w-3 h-3" />
